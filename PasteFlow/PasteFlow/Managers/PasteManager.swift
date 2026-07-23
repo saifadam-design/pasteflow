@@ -4,20 +4,20 @@ import AppKit
 class PasteManager {
     let clipboardManager = ClipboardManager()
 
-    func paste(text: String, completion: @escaping () -> Void) {
+    @MainActor
+    func paste(text: String) async {
         clipboardManager.saveClipboard()
         clipboardManager.replaceClipboard(with: text)
 
-        // Ensure the clipboard change has time to propagate
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.sendCmdV()
+        // Wait 40ms
+        try? await Task.sleep(nanoseconds: 40_000_000)
 
-            // Allow time for the paste event to be processed by the active app
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.clipboardManager.restoreClipboard()
-                completion()
-            }
-        }
+        self.sendCmdV()
+
+        // Wait 80ms
+        try? await Task.sleep(nanoseconds: 80_000_000)
+
+        self.clipboardManager.restoreClipboard()
     }
 
     private func sendCmdV() {
@@ -28,7 +28,6 @@ class PasteManager {
         let eventDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true)
         let eventUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false)
 
-        // Use exactly and only the Command flag to avoid other modifiers bleeding in (e.g. Option)
         eventDown?.flags = commandFlag
         eventUp?.flags = []
 

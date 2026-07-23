@@ -7,12 +7,14 @@ struct PasteFlowApp: App {
 
     init() {
         Logger.shared.log("PasteFlow launched")
-        ShortcutManager.shared.setup(sessionManager: _sessionManager.wrappedValue)
     }
 
     var body: some Scene {
         WindowGroup(id: "main") {
             ContentView(sessionManager: sessionManager)
+                .onAppear {
+                    ShortcutManager.shared.setup(sessionManager: sessionManager)
+                }
         }
         .windowResizability(.contentSize)
 
@@ -20,7 +22,7 @@ struct PasteFlowApp: App {
             PreferencesView()
         }
 
-        MenuBarExtra("PasteFlow", systemImage: "doc.on.clipboard") {
+        MenuBarExtra("PF", systemImage: "doc.on.clipboard") {
             Button("Paste Next") {
                 sessionManager.pasteNext()
             }
@@ -38,11 +40,6 @@ struct PasteFlowApp: App {
             }
 
             Divider()
-
-            Button("Open Window") {
-                openWindow(id: "main")
-                NSApp.activate(ignoringOtherApps: true)
-            }
 
             Button("Preferences...") {
                 NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
