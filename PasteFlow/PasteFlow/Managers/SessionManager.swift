@@ -28,7 +28,7 @@ class SessionManager: ObservableObject {
 
     func pasteNext() {
         guard let chunk = session.currentChunk else { return }
-        Logger.shared.log("Pasting chunk: \(chunk.text)")
+        Logger.shared.log("Pasting chunk")
 
         Task {
             await pasteManager.paste(text: chunk.text)
