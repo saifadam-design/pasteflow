@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import Carbon
 
 class PasteManager {
     let clipboardManager = ClipboardManager()
@@ -21,7 +22,7 @@ class PasteManager {
     }
 
     private func sendCmdV() {
-        let vKeyCode: CGKeyCode = 9 // 'v' key
+        let vKeyCode = CGKeyCode(kVK_ANSI_V) // 'v' key
         let commandFlag = CGEventFlags.maskCommand
 
         let source = CGEventSource(stateID: .hidSystemState)
