@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import NaturalLanguage
 
 @MainActor
 class SessionManager: ObservableObject {
@@ -14,7 +15,15 @@ class SessionManager: ObservableObject {
         case .word:
             newChunks = text.split { $0.isWhitespace || $0.isNewline }.map(String.init)
         case .sentence:
-            newChunks = text.components(separatedBy: ".").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }.map { $0 + "." }
+            let tokenizer = NLTokenizer(unit: .sentence)
+            tokenizer.string = text
+            tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { tokenRange, _ in
+                let sentence = String(text[tokenRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !sentence.isEmpty {
+                    newChunks.append(sentence)
+                }
+                return true
+            }
         case .paragraph:
             newChunks = text.components(separatedBy: "\n\n").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         case .character:
