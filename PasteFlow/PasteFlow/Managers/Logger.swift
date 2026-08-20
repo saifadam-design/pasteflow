@@ -2,7 +2,7 @@ import Foundation
 import OSLog
 
 final class Logger {
-    static let shared = Logger()
+    nonisolated(unsafe) static let shared = Logger()
 
     let appLogger = os.Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.pasteflow.app", category: "App")
 

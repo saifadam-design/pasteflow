@@ -1,15 +1,33 @@
 import Foundation
 import AppKit
+@preconcurrency import ApplicationServices
 
-class AccessibilityManager: ObservableObject {
+@MainActor
+final class AccessibilityManager: NSObject, ObservableObject {
     @Published var isTrusted: Bool = false
 
-    init() {
-        checkPermission()
+    override init() {
+        super.init()
+        refreshPermission()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationDidBecomeActive),
+            name: NSApplication.didBecomeActiveNotification,
+            object: nil
+        )
     }
 
-    func checkPermission() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func applicationDidBecomeActive() {
+        refreshPermission()
+    }
+
+    /// Rechecks whether the app currently has Accessibility permission.
+    func refreshPermission() {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
         self.isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
         Logger.shared.log("Accessibility permission status: \(self.isTrusted)")
     }

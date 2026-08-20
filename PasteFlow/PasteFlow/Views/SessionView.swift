@@ -9,7 +9,7 @@ struct SessionView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-            Text(sessionManager.session.currentChunk?.text ?? "Finished!")
+            Text(sessionManager.currentFormattedChunkText ?? "Finished!")
                 .font(.title2)
                 .lineLimit(3)
                 .frame(maxWidth: .infinity, alignment: .leading)

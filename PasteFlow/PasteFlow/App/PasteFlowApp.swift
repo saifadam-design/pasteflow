@@ -12,9 +12,11 @@ struct PasteFlowApp: App {
 
     @StateObject private var sessionManager = SessionManager()
     @StateObject private var settingsManager = SettingsManager.shared
+    @StateObject private var clipboardMonitor: ClipboardMonitor
     @Environment(\.openWindow) private var openWindow
 
     init() {
+        _clipboardMonitor = StateObject(wrappedValue: ClipboardMonitor())
         Logger.shared.log("PasteFlow launched")
     }
 
@@ -22,17 +24,24 @@ struct PasteFlowApp: App {
         WindowGroup(id: "main") {
             ContentView(sessionManager: sessionManager)
                 .onAppear {
+                    clipboardMonitor.configure(sessionManager: sessionManager)
+                    sessionManager.clipboardMonitor = clipboardMonitor
                     ShortcutManager.shared.setup(sessionManager: sessionManager)
+
+                    clipboardMonitor.updateMonitoring(isEnabled: settingsManager.autoImportCopiedText)
 
                     if settingsManager.startInMenuBar {
                         NSApp.windows.first?.close()
                     }
                 }
+                .onChange(of: settingsManager.autoImportCopiedText) { isEnabled in
+                    clipboardMonitor.updateMonitoring(isEnabled: isEnabled)
+                }
         }
         .windowResizability(.contentSize)
 
         Settings {
-            PreferencesView()
+            PreferencesView(sessionManager: sessionManager)
         }
 
         MenuBarExtra("PF", systemImage: "doc.on.clipboard") {

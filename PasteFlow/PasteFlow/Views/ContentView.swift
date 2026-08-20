@@ -6,7 +6,7 @@ struct ContentView: View {
     @StateObject private var accessibilityManager = AccessibilityManager()
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             if !accessibilityManager.isTrusted {
                 accessibilityWarningView
             }
@@ -18,7 +18,7 @@ struct ContentView: View {
             if sessionManager.session.chunks.isEmpty {
                 ImportView(sessionManager: sessionManager)
             } else {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     Text("Chunk \(min(sessionManager.session.currentIndex + 1, sessionManager.session.chunks.count)) / \(sessionManager.session.chunks.count)")
                         .font(.headline)
 
@@ -32,8 +32,9 @@ struct ContentView: View {
 
                     ProgressView(value: sessionManager.session.progress)
                         .progressViewStyle(LinearProgressViewStyle())
+                        .padding(.horizontal, 4)
 
-                    HStack(spacing: 20) {
+                    HStack(spacing: 12) {
                         Button("Restart") { sessionManager.restart() }
                         Button("Skip") { sessionManager.skip() }
                         Button("Clear") { sessionManager.clear() }
@@ -43,7 +44,7 @@ struct ContentView: View {
                 }
             }
         }
-        .padding()
+        .padding(16)
         .frame(width: 500, height: 400)
     }
 
@@ -53,11 +54,14 @@ struct ContentView: View {
                 .foregroundColor(.yellow)
             Text("Accessibility permissions required.")
             Spacer()
+            Button("Refresh Permission") {
+                accessibilityManager.refreshPermission()
+            }
             Button("Open Settings") {
                 accessibilityManager.openSettings()
             }
         }
-        .padding()
+        .padding(12)
         .background(Color.yellow.opacity(0.1))
         .cornerRadius(8)
     }
